@@ -1,0 +1,71 @@
+version: '3.3'
+
+services:
+  # Elasticsearch Docker Images: https://www.docker.elastic.co/
+  elasticsearch:
+    image: elasticsearch:7.17.9
+    container_name: elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+      
+  logstash:
+    image: logstash:8.12.2
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+      - ./nginx/nginx/logs:/var/log/nginx:ro,Z
+    ports:
+      - 5044:5044/udp
+      - 6044:6044
+    environment:
+      ES_HOST: "elasticsearch:9200"
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped   
+     
+  kibana:
+    container_name: kibana
+    image: kibana:7.17.9
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+  nginx:
+    container_name: nginx_elk
+    build:
+        context: nginx/
+    volumes:
+      - ./nginx/nginx/logs:/var/log/nginx
+    ports:
+      - 8081:8080
+      - 81:80
+      
+  filebeat:
+    image: public.ecr.aws/elastic/filebeat:7.17.22
+    command: --strict.perms=false
+    user: root
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./nginx/nginx/logs:/var/log/nginx
+volumes:
+  elasticsearch-data:
+    driver: local

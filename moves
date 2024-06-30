@@ -1,0 +1,10 @@
+docker-compose -f docker-compose.yaml
+
+curl -s GET http://localhost:9200/_cluster/health?pretty
+docker exec -it elasticsearch bash
+
+отправим сообщение по udp:  echo '192.1.1.2 not_found 404' | nc -u localhost 5044
+inside kibana: Stack Management/ откроем индексы, посмотрим что появилось, создадим что есть и на их основе сможем делать дашборды из раздела analitics (названия индексам задаются в конфиге logstash в разделе output)
+
+
+

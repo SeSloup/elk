@@ -1,0 +1,40 @@
+input {
+	udp {
+		port => 5044
+		tags => "udp"
+	}
+	syslog {
+		port => 6044
+		tags => "nginx_access"
+	}
+	
+	tcp {
+		port => 50000
+	}
+}
+
+## Add your filters / logstash plugins configuration here
+filter {
+	json {
+		source => "message"
+	}
+#	grok {
+#	match => {"message" => "%{IP:client} %{WORD:error} %{NUMBER:code}"}}
+	}
+
+output {
+stdout {}
+if "nginx_access" in [tags] {
+	elasticsearch {
+	hosts => "elasticsearch:9200"
+	index => "nginx-index"
+}}
+if "udp" in [tags] {
+	elasticsearch {
+	hosts => "elasticsearch:9200"
+	index => "others-index"
+}
+	}
+	}
+
+

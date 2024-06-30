@@ -1,0 +1,11 @@
+filebeat.inputs:
+
+- type: filestream
+  enabled: true
+
+  paths:
+    - /var/log/nginx/access.log
+    
+output.logstash:
+  # Array of hosts to connect to.
+  hosts: ["localhost:5044"]
