@@ -45,7 +45,7 @@
 
 *Приведите скриншот интерфейса Kibana, на котором видны логи Nginx.*
 
-[Вариант передачи в logstash nginx access.log через syslog (nginx.conf)]
+[Вариант передачи в logstash nginx access.log через syslog (nginx.conf). *позднее порт был изменен с 5044 на 6044]
 ![04](https://github.com/SeSloup/elk/blob/main/screenshots/05.png)
 
 [Вариант передачи в logstash nginx access.log через file /var/log/nginx/access.log]
